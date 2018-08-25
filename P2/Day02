@@ -1,0 +1,120 @@
+基于Day01的Day01_2.html，逐步理解 Three.js 的一些最基本的构件。
+
+首先，直接引入 Three.js 库，代码如下：
+
+<script src="https://cdn.bootcss.com/three.js/92/three.js"></script>
+
+添加了一个初始化的事件 init：<body onload="init()">
+确保页面数据已完整下载，减少出错。
+
+
+init 函数里面一共调用了五个方法，分别是：初始化渲染器、初始化场景、初始化相机、添加模型、添加动画：
+
+//初始化函数，页面加载完成是调用
+function init() {
+    initRenderer();初始化渲染器
+    initScene();   初始化场景
+    initCamera();  初始化相机
+    initMesh();    添加模型
+
+    animate();     添加动画
+}
+
+必须需要的三大件是：渲染器、相机和场景
+
+创建渲染器
+
+//初始化渲染器
+function initRenderer() {
+    renderer = new THREE.WebGLRenderer(); //实例化渲染器
+    renderer.setSize(window.innerWidth, window.innerHeight); //设置宽和高
+    document.body.appendChild(renderer.domElement); //添加到dom
+}
+
+案例基于浏览器全屏显示，所以设置了浏览器窗口的宽和高。
+画布添加到了 DOM 当中。document.body.appendChild()方法，需了解一下。renderer.domElement是画布。
+
+创建相机
+
+//初始化相机
+function initCamera() {
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200); //实例化相机
+    camera.position.set(0, 0, 15);
+}
+
+介绍一下这四个值：
+
+视野：当前相机视野的宽度，值越大，渲染出来的内容也会更多。（镜头广角度数？）
+宽高比：默认是按照画布显示的宽高比例来设置，如果比例设置的不对，会发现渲染出来的画面有拉伸或者压缩的感觉。（宽除高的比）
+近裁面和远裁面：这个是设置相机可以看到的场景内容的范围，如果场景内的内容位置不在这两个值内的话，将不会被显示到渲染的画面中。（控制渲染内容范围）
+
+camera.position.set 函数是设置当前相机的位置，函数传的三个值分别是 x 轴坐标，y 轴坐标和z 轴坐标
+默认的朝向是朝向0点坐标
+
+创建场景
+
+初始化场景方法，实例化一个场景对象：
+将需要显示的内容都放到场景对象当中
+//初始化场景
+function initScene() {
+    scene = new THREE.Scene(); //实例化场景
+}
+
+将一个模型放入到场景当中即，scene.add(mesh); //添加一个网格（模型）到场景
+
+
+创建第一个模型
+
+//创建模型
+function initMesh() {
+    geometry = new THREE.BoxGeometry( 2, 2, 2 ); //创建几何体
+    material = new THREE.MeshNormalMaterial(); //创建材质
+
+    mesh = new THREE.Mesh( geometry, material ); //创建网格
+    scene.add( mesh ); //将网格添加到场景
+}
+
+创建一个网格（模型）需要两种对象：几何体和材质。
+
+几何体代表模型的形状，它是由固定的点的位置组成，点绘制出面，面组成了模型。
+材质是我们看到当前模型显示出来的效果，如显示的颜色，质感等。
+
+THREE.BoxGeometry()立方体的长度，宽度和高度
+
+这种材质会根据面的朝向不同，显示不同的颜色。
+THREE.Mesh,创建了一个网格对象
+
+scene.add( mesh ); //将网格添加到场景,显示在坐标的原点上面
+
+
+场景动画
+一个可以循环调用的函数：
+
+function animate() {
+    requestAnimationFrame(animate); //循环调用函数
+    ...
+}
+
+requestAnimationFrame，专为动画，与 setInterval 相比，优势在于不需要设置多长时间重新渲染，而是在当前线程内 JS 空闲时自动渲染，并且最大帧数控制在一秒60帧
+
+每一帧重新渲染相机拍摄下来的内容，显示在页面上：
+
+renderer.render( scene, camera ); //渲染界面
+
+
+网格对象都有一个 rotation 的值，通过设置这个值可以让立方体旋转起来。
+mesh.rotation.x += 0.01; //每帧网格模型的沿x轴旋转0.01弧度
+mesh.rotation.y += 0.02; //每帧网格模型的沿y轴旋转0.02弧度
+立方体每帧沿 x 轴方向旋转0.01弧度，沿 y 轴旋转0.02弧度（1π 弧度等于180度角度）。
+
+
+以上可以实现内容显示的基本流程。
+
+Three.js 的性能检测插件
+
+在 Three.js 里面，遇到最多的问题就是性能问题，所以需要时刻检测当前的 Three.js 的性能。
+现在 Three.js 常使用的一款插件叫 stats。
+
+首先在页面中引入插件代码：
+<script src="http://www.wjceo.com/lib/js/libs/stats.min.js"></script>
+
