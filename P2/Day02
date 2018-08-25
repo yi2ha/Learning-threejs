@@ -118,3 +118,18 @@ Three.js 的性能检测插件
 首先在页面中引入插件代码：
 <script src="http://www.wjceo.com/lib/js/libs/stats.min.js"></script>
 
+需要实例化一个 stats 对象，然后把对象内生成的 DOM 添加到页面当中。
+
+stats = new Stats();
+document.body.appendChild(stats.dom);  （在那里添加？？？，新建一个性能插件初始化函数，并添加到init()方法中。否则无法正常渲染。）
+
+    //性能检测框
+    function initStats() {
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+    }
+
+在场景当中，我们能够看到左上角会有一个性能检测的小框：
+前面的数值代表当前每秒的渲染帧率，后面括号内的值是当前场景渲染的帧率范围。
+
+完成代码参加Day02_2.html
