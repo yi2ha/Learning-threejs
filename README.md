@@ -1,2 +1,2 @@
 # Learning-threejs
-A Log for Learning threejs
+A Log for Learning threejs.
