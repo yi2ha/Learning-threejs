@@ -1,2 +1,47 @@
-Three.js 基础入门-day01
+#Three.js 基础入门-day01
 
+第一部分（第01-02课），入门前概述，带你初步认识 Three.js、框架选择标准、开发工具，源码获取，实现一个“Hello World”辅助工具。
+
+第01课：入门前准备
+
+了解WebGL涉及的相关概念：WebGL（Web 图形库）、Web 浏览器中呈现交互式 3D 和 2D 图形、无插件、与 OpenGL ES 2.0 紧密相符合的 API、可以在 HTML5 <canvas> 元素中使用。
+
+通过 JavaScript 去使用 GPU 来进行浏览器图形渲染的工具。
+
+ 了解Three.js： webGL 框架、被广泛应用、由居住在西班牙巴塞罗那的程序员 Ricardo Cabbello Miguel 所开发，他更为人知的网名是 Mr.doob。
+ 
+ 技术上：使用了很多图形引擎的高级技巧，提高性能、完全开源、WebGL 和 Three.js 的关系，相当于 JavaScript 和 jQuery 的关系。
+ 
+ 将 3D 场景拆解为网格、材质和光源
+ 方便地应用于游戏开发、动画制作、幻灯片制作、髙分辨率模型和一些特殊的视觉效果制作。
+ 提供拾取（Picking）功能
+ 可进行矩阵、投影和矢量运算
+ 进行自定义优化是很容易的事情？？
+ Three.js 不但支持 WebGL，而且还支持使用 Canvas2D、Css3D 和 SVG 进行渲染。在未兼容 WebGL 的环境中可以回退到其它的解决方案。
+ 不是游戏引擎
+ 
+ 与 Babylon.js 对比，与 PlayCanvas 对比，与 Cesium 对比
+ 
+ 微信小游戏跳一跳也是在 Three.js 的基础上开发出来的。
+ 
+ #入门前准备
+ 
+ 浏览器兼容Chrome 、开发工具WebStorm、HBuilder
+ 
+ Three.js（当前版本为 r92）
+ 直接引入方式为：<script src="https://cdn.bootcss.com/three.js/92/three.js"></script>
+ 
+ 其中相关文件夹的内容是：
+
+build：里面含有 Three.js 构建出来的 JavaScript 文件，可以直接引入使用，并有压缩版；
+docs：Three.js 的官方文档；
+editor：Three.js 的一个网页版的模型编辑器；
+examples：Three.js 的官方案例，如果全都学会，必将成为大神；
+src：这里面放置的全是编译 Three.js 的源文件；
+test：一些官方测试代码，我们一般用不到；
+utils：一些相关插件；
+其他：开发环境搭建、开发所需要的文件，如果不对 Three.js 进行二次开发，用不到。
+ 
+ 
+ 
+ 
