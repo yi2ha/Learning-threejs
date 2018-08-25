@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8>
+    <title>我的第一个Three.js案例－旋转立方体，增加性能插件显示</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body onload="init()"><!--确保页面数据已完整下载，减少出错。-->
+
+<script src="https://cdn.bootcss.com/three.js/92/three.js"></script>
+<script src="http://www.wjceo.com/lib/js/libs/stats.min.js"></script>
+
+<script>
+    //声明一些全局变量
+    var renderer, camera, scene, geometry, material, mesh, stats;//为性能插件添加stats变量
+
+    //初始化渲染器
+    function initRenderer() {
+        renderer = new THREE.WebGLRenderer(); //实例化WebGL渲染器
+        renderer.setSize(window.innerWidth, window.innerHeight); //案例基于浏览器全屏显示,设置宽和高
+        document.body.appendChild(renderer.domElement); //renderer.domElement是画布，添加到dom
+    }
+
+    //初始化相机
+    function initCamera() {     //需要四个值，视野、宽高比、近裁面和远裁面
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200); //实例化相机
+        camera.position.set(0, 0, 15); //设置当前相机的位置,分别是 x 轴坐标，y 轴坐标和z 轴坐标,默认的朝向是朝向0点坐标
+    }
+
+    //初始化场景
+    function initScene() {
+        scene = new THREE.Scene(); //实例化场景
+    }
+
+    //创建模型
+    function initMesh() {
+        geometry = new THREE.BoxGeometry( 2, 2, 2 ); //创建几何体,立方体的长度，宽度和高度
+        material = new THREE.MeshNormalMaterial(); //创建材质,根据面的朝向不同，显示不同的颜色。
+
+        mesh = new THREE.Mesh( geometry, material ); //创建网格,几何体对象和材质对象
+        scene.add( mesh ); //将网格添加到场景,显示在坐标的原点上面
+    }
+
+    //运行动画
+    function animate() {
+        requestAnimationFrame(animate);
+        //循环调用函数,与 setInterval 相比，优势在于不需要设置多长时间重新渲染，而是在当前线程内 JS 空闲时自动渲染，并且最大帧数控制在一秒60帧
+
+        mesh.rotation.x += 0.01; //每帧网格模型的沿x轴旋转0.01弧度
+        mesh.rotation.y += 0.02; //每帧网格模型的沿y轴旋转0.02弧度
+
+        //前面的数值代表当前每秒的渲染帧率，后面括号内的值是当前场景渲染的帧率范围。
+
+        stats.update(); //更新性能检测框
+        renderer.render( scene, camera ); //渲染界面,第一个值是场景对象，第二个值是相机对象
+    }
+
+    //性能检测框，需独立初始化
+    function initStats() {
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+    }
+
+    //初始化函数，页面加载完成是调用
+    function init() {
+        initRenderer();
+        initScene();
+        initCamera();
+        initMesh();
+        initStats();
+        animate();
+    }
+</script>
+
+<!--Three.js 的性能检测插件
+
+在 Three.js 里面，遇到最多的问题就是性能问题，所以需要时刻检测当前的 Three.js 的性能。
+现在 Three.js 常使用的一款插件叫 stats。
+-->
+
+
+
+</body>
+</html>
