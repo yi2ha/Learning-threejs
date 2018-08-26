@@ -1,6 +1,6 @@
 #Three.js 基础入门-day03
 
-第一部分（第01-02课），入门前概述，带你初步认识 Three.js、框架选择标准、开发工具，源码获取，实现一个“Hello World”辅助工具。
+第二部分（第03-08课），基础功能篇，主要包括 Object3D、Scene、Mesh、Group、Geometry、Materials、Lights、Cameras、粒子等相关功能的介绍。
 
 第03课：基础功能之 Scene 场景
 
