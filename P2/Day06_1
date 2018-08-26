@@ -1,0 +1,13 @@
+#Three.js 基础入门-day06
+
+第二部分（第03-08课），基础功能篇，主要包括 Object3D、Scene、Mesh、Group、Geometry、Materials、Lights、Cameras、粒子等相关功能的介绍。
+
+第06课：基础功能之 Light 光照
+
+如果实现在场景中添加光效和阴影效果。
+
+复习：光照效果的创建：
+
+var light = new THREE.DirectionalLight(0xffffff); //添加了一个白色的平行光
+场景中添加了一个全局光照：
+scene.add(new THREE.AmbientLight(0x222222));
