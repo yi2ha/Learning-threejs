@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>创建多Geometry,多材质的显示综合练习案例</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body onload="init()">
+<script src="https://cdn.bootcss.com/three.js/92/three.js"></script>
+
+<script src="https://cdn.bootcss.com/dat-gui/0.7.1/dat.gui.min.js"></script>
+
+<!--Three.js 的性能检测插件
+
+在 Three.js 里面，遇到最多的问题就是性能问题，所以需要时刻检测当前的 Three.js 的性能。
+现在 Three.js 常使用的一款插件叫 stats。
+-->
+<script src="http://www.wjceo.com/lib/js/libs/stats.min.js"></script>
+
+<script>
+    //声明一些全局变量，渲染器，摄像机，场景，状态，调试控制，调度GUI，旋转开关
+    var renderer, camera, scene, stats, controls, gui, rotate = true;
+    //声明一些几何体模型变量
+    var box, circle, cone, cylinder, sphere, plane, torus, line, curveLine;
+
+    //初始化渲染器
+    function initRenderer() {
+        renderer = new THREE.WebGLRenderer(); //实例化渲染器
+        renderer.setSize(window.innerWidth, window.innerHeight); //设置宽和高
+        document.body.appendChild(renderer.domElement); //添加到dom
+    }
+    //初始化场景
+    function initScene() {
+        scene = new THREE.Scene(); //实例化场景
+    }
+    //初始化相机
+    function initCamera() {
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200); //实例化相机
+        camera.position.set(0, 0, 150);
+    }
+
+    //创建灯光
+    function initLight() {
+        var light = new THREE.DirectionalLight(0xffffff); //添加了一个白色的平行光
+        light.position.set(20, 50, 50); //设置光的方向
+        scene.add(light); //添加到场景
+        //添加一个全局环境光
+        scene.add(new THREE.AmbientLight(0x222222));
+    }
+
+
+
+    //创建模型
+    function initMesh() {
+        // 这里共用材质对象material，再分别指定几何体的空间坐标
+        var material = new THREE.MeshNormalMaterial({color:0x00ffff});
+
+        //添加直线
+        var pointsArr = [
+            new THREE.Vector3( -10, 0, -5 ),
+            new THREE.Vector3( -5, 15, 5 ),
+            new THREE.Vector3( 20, 15, -5 ),
+            new THREE.Vector3( 10, 0, 5 )
+        ];
+        var lineGeometry = new THREE.Geometry(); //实例化几何体
+        lineGeometry.setFromPoints(pointsArr); //使用当前点的属性配置几何体
+        var lineMaterial = new THREE.LineBasicMaterial({color:0x00ff00});
+        line = new THREE.Line(lineGeometry, lineMaterial);
+        line.position.set(-65, -30, 0);
+        scene.add(line);
+
+        //添加曲线线
+        //指定一些用于生成曲线线的三维顶点
+        var curve = new THREE.CatmullRomCurve3(pointsArr);
+        var points = curve.getPoints( 50 ); //使用getPoints获取当前曲线分成50段后的所有顶点
+        var curveGeometry = new THREE.BufferGeometry().setFromPoints( points ); //使用顶点生成几何体
+        var curveMaterial = new THREE.LineDashedMaterial( { color : 0xff0000 } ); //创建一条红色的线材质
+        // 使用THREE.Line创建线
+        curveLine = new THREE.Line( curveGeometry, curveMaterial );
+        curveLine.computeLineDistances(); //需要重新计算位置才能显示出虚线
+        curveLine.position.set(-65, -30, 0);
+        scene.add(curveLine);
+
+
+
+
+        //创建立方体
+        //box = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), material);
+        box = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), new THREE.MeshLambertMaterial({color:0x00ffff}));
+        box.position.set(-50, 20, 0);
+        scene.add(box);
+        //创建圆
+        //circle = new THREE.Mesh(new THREE.CircleGeometry(5, 32), new THREE.MeshNormalMaterial());
+        circle = new THREE.Mesh(new THREE.CircleGeometry(5, 32), new THREE.MeshNormalMaterial());
+        circle.position.set(-20, 20, 0);
+        scene.add(circle);
+        //创建圆锥
+        cone = new THREE.Mesh(new THREE.ConeGeometry(5, 20, 32), new THREE.MeshPhongMaterial({color:0x00ffff}));
+        //cone = new THREE.Mesh(new THREE.ConeGeometry(5, 20, 32), material);
+        cone.position.set(20, 20, 0);
+        scene.add(cone);
+        //创建圆柱
+        cylinder = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 20, 32), new THREE.MeshPhongMaterial({color:0x00ffff}));
+        //cylinder = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 20, 32), material);
+        cylinder.position.set(50, 20, 0);
+        scene.add(cylinder);
+        //创建球
+        sphere = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshPhongMaterial({color:0x00ffff}));
+        //sphere = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), material);
+        sphere.position.set(-35, -20, 0);
+        scene.add(sphere);
+        //创建平面
+        plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+        //plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), new THREE.MeshNormalMaterial());
+        plane.position.set(0, -20, 0);
+        scene.add(plane);
+        //创建圆环
+        torus = new THREE.Mesh(new THREE.TorusGeometry(10, 3, 16, 100), new THREE.MeshStandardMaterial({metalness: 0, roughness: 0.5}));
+        //torus = new THREE.Mesh(new THREE.TorusGeometry(10, 3, 16, 100), new THREE.MeshStandardMaterial({metalness: 0, roughness: 0.5}));
+        torus.position.set(35, -20, 0);
+        scene.add(torus);
+    }
+    //运行动画
+    var step = 0; //记录旋转的角度
+    function animate() {
+        requestAnimationFrame(animate); //循环调用函数，具体为每帧都调用一次
+        //判断是否可以旋转
+        if(rotate){
+            step += 0.02;
+            //设置每一个模型的转向
+            line.rotation.set(step, step, step);
+            curveLine.rotation.set(step, step, step);
+            box.rotation.set(step, step, step);
+            circle.rotation.set(step, step, step);
+            cone.rotation.set(step, step, step);
+            cylinder.rotation.set(step, step, step);
+            sphere.rotation.set(step, step, step);
+            plane.rotation.set(step, step, step);
+            torus.rotation.set(step, step, step);
+        }
+        stats.update(); //更新性能检测框
+        renderer.render(scene, camera); //渲染界面
+    }
+    //性能检测框
+    function initStats() {
+        stats = new Stats();
+        document.body.appendChild(stats.dom); // 将状态的dom加入？
+    }
+    //创建调试框
+    function initGui() {
+        controls = {
+            rotate:true,
+            positionX:0,
+            positionY:0,
+            positionZ:0
+        };
+        gui = new dat.GUI();
+        gui.add(controls, "rotate").name("旋转").onChange(function (e) {
+            rotate = e;
+        });
+        gui.add(controls, "positionX", -1000, 1000).onChange(updatePosition);
+        gui.add(controls, "positionY", -1000, 1000).onChange(updatePosition);
+        gui.add(controls, "positionZ", -1000, 1000).onChange(updatePosition);
+    }
+
+    function updatePosition() {
+        box.position.set(controls.positionX, controls.positionY, controls.positionZ);
+
+        box.position.x = 0.003; //将模型的位置调整到x正轴距离原点为3的位置。
+        box.position.y += 0.005; //将模型的y轴位置以当前的位置向上移动5个单位。
+        box.position.z -= 0.006;
+
+        box.scale.x *= 1.002; //模型沿x轴放大一倍
+        box.scale.y *= 0.95; //模型沿y轴缩小一倍
+        if(box.scale.y<0.01)mesh.scale.y=2; //缩放太小时，设置为2
+        box.scale.z = 1; //模型沿z轴保持不变
+    }
+
+    //初始化函数，页面加载完成是调用
+    function init() {
+        initRenderer();
+        initScene();
+        initLight();//  涉及到依赖光的材质，如果没有光对象
+        initCamera();
+        initMesh();
+        initStats();
+        initGui();
+        animate();
+    }
+
+    console.log(box);
+    console.log(circle);
+    console.log(cone);
+    console.log(cylinder);
+    console.log(sphere);
+    console.log(plane);
+    console.log(torus);
+</script>
+</body>
+</html>
