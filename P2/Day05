@@ -1,0 +1,249 @@
+#Three.js 基础入门-day05
+
+第二部分（第03-08课），基础功能篇，主要包括 Object3D、Scene、Mesh、Group、Geometry、Materials、Lights、Cameras、粒子等相关功能的介绍。
+
+第05课：基础功能之 Material 材质
+
+模型的形状、模型的表现、模型外观——材质
+
+表面各种可视属性的结合，这些可视属性是指表面的色彩、纹理、光滑度、透明度、反射率、折射率、发光度等。
+
+Three.js 封装好了大部分的材质效果，如同使用复杂的 Shader 语言自己去实现。
+
+ Material基本属性和方法
+ 
+ 1、needsUpdate
+ 基本流程：修改 Material的属性后，将 needsUpdate 属性设置为 true，在下一帧里将修改内容同步到 WebGL 的显存内。
+ 注意：只需要在更新 Material 属性后设置一次即可。请勿在 requestAnimationFrame 方法内更新，会降低性能。
+ 
+ 2、side
+ 定义当前渲染方向，默认值是 THREE.FrontSide（只渲染正面），
+ 可选值有：THREE.BackSide（只渲染背面）和 THREE.DoubleSide（正面和背面都会渲染）。
+ 
+ 3、transparent
+ 定义材质是否透明，默认为false。
+ 此属性为true后，可以通过设置opacity来调整透明度。
+ 
+ 4、opacity
+ 定义材质的透明度，取值范围为 0.0 到 1.0。默认值是1.0，也就是不透明。
+ 
+ 5、map
+ 配置当前材质的纹理贴图，是一个 THREE.Texture 对象。
+ 注意：极其个别的材质如 LineBasicMaterial（线材质）等没有这个属性。
+ 
+ 6、wireframe
+ 模型线框渲染开关，默认为 false。个别材质没有这个属性。
+ 
+ 7、dispose()
+将材质从内存中删除，但不会将材质的纹理贴图删除。
+注意：如果需删除纹理贴图，请调用 material.map.dispose()。
+
+配置纹理贴图
+
+纹理贴图经常使用到，独立强调如何实现一个纹理贴图。
+
+第一种，使用 THREE.TextureLoader 进行生成纹理对象：
+
+var texture = new THREE.TextureLoader().load( "textures/water.jpg" ); 
+material.map = texture; //将纹理赋值给材质
+
+第二种，直接实例化：
+
+var texture = new THREE.Texture(canvas); //实例化的第一个对象可以是`img`、`canvas`和`video`。
+material.map = texture; //将纹理赋值给材质
+
+纹理重复问题
+
+如果图片不是标准的2的幂数，在控制台会提示：“THREE.WebGLRenderer: image is not power of two”，说明图片不是标准格式，高宽不是2的幂数。
+
+图片重复显示。需要配置的两个属性是：texture.wrapS（水平方向重复）和 texture.wrapT（垂直方向重复），
+默认值是：THREE.ClampToEdgeWrapping，即纹理的最后一个像素延伸到网格的边缘。
+可选项有：THREE.RepeatWrapping，表示纹理将重复无穷大；
+MirroredRepeatWrapping，表示镜像重复。
+
+needsUpdate 属性
+更新了纹理的相关属性，需要将此属性设置为 true，将数据同步到 WebGL。
+
+repeat
+纹理在整个表面水平方向和垂直方向重复多少次，也会受纹理重复设置的影响，设置方式为：
+
+var texture = new THREE.TextureLoader().load( "textures/water.jpg" );
+texture.wrapS = THREE.RepeatWrapping; //设置水平方向无限循环
+texture.wrapT = THREE.RepeatWrapping; //设置垂直方向无限循环
+texture.repeat.set( 4, 4 ); //水平方向和垂直方向都重复四次
+
+内置常用材质
+
+如何实例化一个材质和一些需要注意的地方：
+MeshBasicMaterial 和设置颜色的方法
+简单的材质，不会受到光的影响，整个物体的颜色都是相同，没有立体感觉。
+
+在实例化材质时，我们可以传入一个对象，
+属性 color（颜色）例外，实例化的时候可以传入十六进制数，也可以写十六进制字符串。
+
+注意：实例化完成后再修改需要重新赋值 THREE.Color 对象，或者调用 material.color.set 方法赋值。
+如使用 MeshBasicMaterial 材质创建了一个立方体，设置了显示颜色为一种浅蓝色，
+var material = new THREE.MeshBasicMaterial({color:0x00ffff});
+var geometry = new THREE.BoxGeometry(1, 1, 1);
+
+var mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
+
+除了上面实例化的时候进行设置，后面也可以再修改：
+var material = new THREE.MeshBasicMaterial({color:0x00ffff}); //设置初始的颜色为浅蓝色
+material.color.set(0xff00ff); //将颜色修改为紫色
+
+直接赋值一个新的 THREE.Color 对象，如：
+
+var material = new THREE.MeshBasicMaterial({color:0x00ffff}); //设置初始的颜色为浅蓝色
+material.color = new THREE.Color(0xff00ff); //将颜色修改为紫色
+
+通过 new THREE.Color 创建一个颜色对象，Three.js 支持的颜色书写方式比较丰富，如：
+
+//直接传入十六进制数或者字符串
+var color = new THREE.Color( 0xff0000 );
+var color = new THREE.Color( "#ff0000" );
+
+//RGB 字符串
+var color = new THREE.Color("rgb(255, 0, 0)");
+var color = new THREE.Color("rgb(100%, 0%, 0%)");
+
+//支持一百四十多中颜色名称
+var color = new THREE.Color( 'skyblue' );
+
+//HSL 字符串
+var color = new THREE.Color("hsl(0, 100%, 50%)");
+
+//支持RGB值设置在0到1之间的方式
+var color = new THREE.Color( 1, 0, 0 );
+
+
+MeshNormalMaterial 法向材质
+
+根据面的方向不同自动改变颜色，此材质不受灯光影响。
+
+geometry = new THREE.BoxGeometry( 2, 2, 2 ); //创建几何体
+material = new THREE.MeshNormalMaterial(); //创建材质
+
+mesh = new THREE.Mesh( geometry, material ); //创建网格
+scene.add( mesh ); //将网格添加到场景
+
+
+LineBasicMaterial 线条材质
+
+直线需要单独的材质进行实现。
+绘制线段，需要确定起点和终点。
+
+使用了四个顶点创建了三条线。再通过 Geometry 对象使用这组顶点配置几何体，
+实例化线的材质，最后使用 THREE.Line 生成线。
+
+//添加直线
+var pointsArr = [
+    new THREE.Vector3( -10, 0, -5 ),
+    new THREE.Vector3( -5, 15, 5 ),
+    new THREE.Vector3( 20, 15, -5 ),
+    new THREE.Vector3( 10, 0, 5 )
+];
+
+var lineGeometry = new THREE.Geometry(); //实例化几何体
+lineGeometry.setFromPoints(pointsArr); //使用当前点的属性配置几何体
+
+var lineMaterial = new THREE.LineBasicMaterial({color:0x00ff00}); //材质
+
+line = new THREE.Line(lineGeometry, lineMaterial);
+scene.add(line);
+
+LineDashedMaterial 虚线
+
+创建虚线，创建曲线。
+曲线也是由无数段的直线组成的，段数分的越清晰，曲线过渡越顺滑。
+
+ THREE.CatmullRomCurve3 来生成一个 curve 对象。
+ 
+ var pointsArr = [
+    new THREE.Vector3( -10, 0, -5 ),
+    new THREE.Vector3( -5, 15, 5 ),
+    new THREE.Vector3( 20, 15, -5 ),
+    new THREE.Vector3( 10, 0, 5 )
+];
+//指定一些用于生成曲线线的三维顶点
+var curve = new THREE.CatmullRomCurve3(pointsArr);
+
+var points = curve.getPoints( 50 ); //使用getPoints获取当前曲线分成50段后的所有顶点
+var curveGeometry = new THREE.BufferGeometry().setFromPoints( points ); //使用顶点生成几何体
+
+var curveMaterial = new THREE.LineDashedMaterial( { color : 0xff0000 } ); //创建一条红色的线材质
+
+// 使用THREE.Line创建线
+curveLine = new THREE.Line( curveGeometry, curveMaterial );
+curveLine.computeLineDistances(); //需要重新计算位置才能显示出虚线
+scene.add(curveLine);
+
+添加光
+
+MeshBasicMaterial 不会受光的影响，但其他材质会受光源影响，所以进一步了解光。
+
+//创建灯光
+function initLight() {
+    var light = new THREE.DirectionalLight(0xffffff); //添加了一个白色的平行光，模拟太阳光线的平行光
+    light.position.set(20, 50, 50); //设置光的方向
+    scene.add(light); //添加到场景
+
+    //添加一个全局环境光，对每一个物理都造成影响的环境光
+    scene.add(new THREE.AmbientLight(0x222222));
+}
+
+具体细节在稍后展开。
+
+MeshLambertMaterial 兰伯特材质
+
+对光有反应，但是不会出现高光，可以模拟一些表面粗糙的材质的物体，比如木头或者石头。
+
+案例，如下：
+
+geometry = new THREE.BoxGeometry( 2, 2, 2 ); //创建几何体
+material = new THREE.MeshLambertMaterial({color:0x00ffff}); //创建材质
+
+mesh = new THREE.Mesh( geometry, material ); //创建网格
+scene.add( mesh ); //将网格添加到场景
+
+MeshPhongMaterial 高光材质
+
+具有高光效果，可以模拟一些表面光滑的物体的材质效果，比如油漆面，瓷瓦等光滑物体。
+
+案例如下：
+
+geometry = new THREE.BoxGeometry( 2, 2, 2 ); //创建几何体
+material = new THREE.MeshPhongMaterial({color:0x00ffff}); //创建材质
+
+mesh = new THREE.Mesh( geometry, material ); //创建网格
+scene.add( mesh ); //将网格添加到场景
+
+
+MeshStandardMaterial 基于物理的渲染（PBR）材质
+基于物理的渲染（PBR）材质，生成的材质效果更优秀，但是需要较大的计算量。
+这种材质我们可以定义它的粗糙度来确定反光效果程度，经常用于模拟金属的质感，使金属质感更加真实。
+
+案例如下：
+
+geometry = new THREE.BoxGeometry( 2, 2, 2 ); //创建几何体
+//material = new THREE.MeshPhongMaterial({color:0x00ffff}); //创建材质 （？？？，MeshPhongMaterial 高光材质）
+material = new THREE.MeshStandardMaterial({color:0x00ffff});// 应修改
+material.metalness = 0.1; //设置的值的范围为0-1，值越小，材质越光滑，高光越明显
+material.metalnessMap = 0.1; //设置的值的范围为0-1，值越大，越有生锈金属的质感，值越小反光越清晰
+
+mesh = new THREE.Mesh( geometry, material ); //创建网格
+scene.add( mesh ); //将网格添加到场景
+
+本日，了解到常用材质的创建与使用案例，及光、线、点、材质使用场景有初步的认识。
+
+综合训练可见Day05_1.html
+
+
+
+
+
+
+
+
+
