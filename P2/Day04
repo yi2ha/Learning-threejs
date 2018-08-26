@@ -1,4 +1,6 @@
-Day04
+#Three.js 基础入门-day04
+
+第二部分（第03-08课），基础功能篇，主要包括 Object3D、Scene、Mesh、Group、Geometry、Materials、Lights、Cameras、粒子等相关功能的介绍。
 
 第04课：基础功能之 Geometry 几何体
 
